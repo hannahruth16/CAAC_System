@@ -179,7 +179,7 @@ class RegistrationController extends Controller
                 'last_name' => $validated['recommender_last_name'],
                 'first_name' => $validated['recommender_first_name'],
                 'middle_name' => $validated['recommender_middle_name'] ?? null,
-                'year_graduated' => $validated['recommender_year_graduated'] ?? null,
+                'recommender_year_graduated' => 'nullable|integer|min:1800|max:2026',
             ]);
 
             return $registration;
