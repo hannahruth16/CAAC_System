@@ -1,0 +1,11 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\RegistrationController;
+
+
+Route::get('/register', [RegistrationController::class, 'create'])
+    ->name('registration');
+
+Route::post('/register', [RegistrationController::class, 'store'])
+    ->name('registration.store');
