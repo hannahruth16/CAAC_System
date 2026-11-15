@@ -38,7 +38,6 @@ class Registration extends Model
     {
         return trim(implode(' ', array_filter([
             $this->first_name,
-            $this->middle_name,
             $this->family_name,
             $this->suffix,
         ])));
