@@ -15,6 +15,9 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use App\Mail\ApplicationReceivedMail;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 class RegistrationController extends Controller
 {
@@ -179,16 +182,61 @@ class RegistrationController extends Controller
                 'last_name' => $validated['recommender_last_name'],
                 'first_name' => $validated['recommender_first_name'],
                 'middle_name' => $validated['recommender_middle_name'] ?? null,
-                'recommender_year_graduated' => 'nullable|integer|min:1800|max:2026',
+                'recommender_year_graduated' => $validated['recommender_year_graduated'] ?? null,
             ]);
 
             return $registration;
         });
 
+        // SEND APPLICATION RECEIVED EMAIL
+        // Retrieve the saved recommender.
+        $recommender = Recommender::where(
+            'registration_id',
+            $registration->registration_id
+        )->first();
+
+        // Build the recommender's full name.
+        $recommenderName = $recommender
+            ? trim(
+                $recommender->first_name . ' ' .
+                ($recommender->middle_name ?? '') . ' ' .
+                $recommender->last_name
+            )
+            : 'Not provided';
+
+        // Build the applicant's full name.
+        $applicantName = trim(
+            $registration->first_name . ' ' .
+            ($registration->middle_name ?? '') . ' ' .
+            $registration->family_name . ' ' .
+            ($registration->suffix ?? '')
+        );
+
+        // Send confirmation email to applicant.
+        try {
+
+            Mail::to($registration->email)->send(
+                new ApplicationReceivedMail(
+                    $registration,
+                    $recommenderName
+                )
+            );
+
+        } catch (\Throwable $e) {
+
+            Log::error('CAAC Application Received Email Failed', [
+                'registration_id' => $registration->registration_id,
+                'email' => $registration->email,
+                'error' => $e->getMessage(),
+            ]);
+
+        }
+
         return redirect()
             ->back()
             ->with('success', 'Your registration has been submitted successfully. Your registration number is ' . $registration->registration_no . '.')
             ->with('registration_no', $registration->registration_no);
+
     }
 
     /**
