@@ -14,7 +14,7 @@
         </h2>
 
         <p class="text-muted">
-            Manage system accounts and review registrations.
+            Manage system accounts.
         </p>
     </div>
 
@@ -135,7 +135,7 @@
                                     </td>
 
                                     <td>
-                                        {{ $user->account_status }}
+                                        {{ ucfirst($user->account_status) }}
                                     </td>
 
                                     <td class="text-center">
@@ -154,19 +154,21 @@
                                         </button>
 
                                         <button type="button"
-                                                class="btn btn-sm btn-outline-primary"
+                                                class="btn btn-primary"
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#editAccountModal"
+
                                                 data-user-id="{{ $user->user_id }}"
                                                 data-username="{{ $user->username }}"
                                                 data-email="{{ $user->email }}"
                                                 data-account-status="{{ $user->account_status }}"
-                                                >
+
+                                                data-update-url="{{ route('admin.users.update', $user->user_id) }}">
+
                                             Edit Account
 
                                         </button>
                                         
-
                                     </td>
 
                                 </tr>
@@ -293,10 +295,6 @@
 
 </div>
 
-
-
-
-
 {{-- ==========================================
      VIEW ACCOUNT MODAL
 ========================================== --}}
@@ -368,7 +366,6 @@
 
 </div>
 
-
 {{-- ==========================================
      EDIT ACCOUNT MODAL
 ========================================== --}}
@@ -405,6 +402,7 @@
                            name="user_id"
                            id="edit_user_id">
 
+                    {{-- USERNAME --}}
                     <div class="mb-3">
 
                         <label class="form-label fw-semibold">
@@ -419,6 +417,7 @@
 
                     </div>
 
+                    {{-- EMAIL --}}
                     <div class="mb-3">
 
                         <label class="form-label fw-semibold">
@@ -430,6 +429,73 @@
                                id="edit_email"
                                class="form-control"
                                required>
+
+                    </div>
+
+                    <hr>
+
+                    {{-- ACCOUNT STATUS --}}
+                    <div class="mb-3">
+
+                        <label class="form-label fw-semibold">
+                            Account Status
+                        </label>
+
+                        <select name="account_status"
+                                id="edit_account_status"
+                                class="form-select"
+                                required>
+
+                            <option value="active">Active</option>
+                            <option value="deactivated">Deactivated</option>
+
+                        </select>
+
+                        <small class="text-muted">
+                            Deactivated accounts should not be allowed to log in.
+                        </small>
+
+                    </div>
+
+                    <hr>
+
+                    {{-- CHANGE PASSWORD --}}
+                    <h6 class="fw-bold text-primary mb-3">
+                        Change Password
+                    </h6>
+
+                    <div class="mb-3">
+
+                        <label class="form-label fw-semibold">
+                            New Password
+                        </label>
+
+                        <input type="password"
+                               name="password"
+                               id="edit_password"
+                               class="form-control"
+                               placeholder="Leave blank to keep current password"
+                               autocomplete="new-password">
+
+                        <small class="text-muted">
+                            Leave blank if you don't want to change the password.
+                            Minimum of 8 characters.
+                        </small>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label fw-semibold">
+                            Confirm New Password
+                        </label>
+
+                        <input type="password"
+                               name="password_confirmation"
+                               id="edit_password_confirmation"
+                               class="form-control"
+                               placeholder="Re-enter new password"
+                               autocomplete="new-password">
 
                     </div>
 
@@ -478,7 +544,7 @@
                 <div>
                     <h5 class="modal-title fw-bold text-primary"
                         id="registrationModalLabel">
-                        Applicant Registration Information
+                        User Account Information
                     </h5>
 
                     <small class="text-muted" id="modalApplicantName">
@@ -525,7 +591,6 @@
 </div>
 
 
-
 {{-- ==========================================
      MODAL JAVASCRIPT
 ========================================== --}}
@@ -562,36 +627,46 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-
     // ==================================
     // EDIT ACCOUNT MODAL
     // ==================================
 
     const editModal = document.getElementById('editAccountModal');
 
-    if (editModal) {
+    // ==================================
+    // EDIT ACCOUNT MODAL
+    // ==================================
 
-        editModal.addEventListener('show.bs.modal', function (event) {
+    const editAccountModal = document.getElementById('editAccountModal');
+
+    if (editAccountModal) {
+
+        editAccountModal.addEventListener('show.bs.modal', function (event) {
 
             const button = event.relatedTarget;
 
-            const userId = button.getAttribute('data-user-id');
-            const username = button.getAttribute('data-username');
-            const email = button.getAttribute('data-email');
+            document.getElementById('edit_user_id').value =
+                button.getAttribute('data-user-id');
 
-            document.getElementById('edit_user_id').value = userId;
+            document.getElementById('edit_username').value =
+                button.getAttribute('data-username');
 
-            document.getElementById('edit_username').value = username;
+            document.getElementById('edit_email').value =
+                button.getAttribute('data-email');
 
-            document.getElementById('edit_email').value = email;
+            document.getElementById('edit_account_status').value =
+                button.getAttribute('data-account-status');
+
+            document.getElementById('edit_password').value = '';
+
+            document.getElementById('edit_password_confirmation').value = '';
 
             document.getElementById('editAccountForm').action =
-                `/admin/users/${encodeURIComponent(userId)}`;
+                button.getAttribute('data-update-url');
 
         });
 
     }
-
 
     // ==================================
     // REGISTRATION DETAILS MODAL
@@ -696,68 +771,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const user = data.user;
         const r = data.registration;
+        const documents = r.documents || [];
 
         applicantName.textContent = r.full_name || 'Applicant Details';
 
-        const addresses = r.addresses || [];
-        const dependents = r.dependents || [];
-        const recommender = r.recommender;
-        const documents = r.documents || [];
-
         registrationDetails.innerHTML = `
-
-            {{-- NAVIGATION TABS --}}
 
             <ul class="nav nav-tabs registration-view-tabs mb-4"
                 id="registrationViewTabs">
 
                 <li class="nav-item">
                     <button class="nav-link active"
-                            data-bs-toggle="tab"
-                            data-bs-target="#viewPersonal"
-                            type="button">
-                        Personal Information
-                    </button>
-                </li>
-
-                <li class="nav-item">
-                    <button class="nav-link"
-                            data-bs-toggle="tab"
-                            data-bs-target="#viewAddress"
-                            type="button">
-                        Address & Contact
-                    </button>
-                </li>
-
-                <li class="nav-item">
-                    <button class="nav-link"
-                            data-bs-toggle="tab"
-                            data-bs-target="#viewBackground"
-                            type="button">
-                        Background
-                    </button>
-                </li>
-
-                <li class="nav-item">
-                    <button class="nav-link"
-                            data-bs-toggle="tab"
-                            data-bs-target="#viewDependents"
-                            type="button">
-                        Dependents
-                    </button>
-                </li>
-
-                <li class="nav-item">
-                    <button class="nav-link"
-                            data-bs-toggle="tab"
-                            data-bs-target="#viewRecommender"
-                            type="button">
-                        Recommender
-                    </button>
-                </li>
-
-                <li class="nav-item">
-                    <button class="nav-link"
                             data-bs-toggle="tab"
                             data-bs-target="#viewAccount"
                             type="button">
@@ -771,190 +795,49 @@ document.addEventListener('DOMContentLoaded', function () {
 
             <div class="tab-content">
 
-                {{-- PERSONAL INFORMATION --}}
+                {{-- ACCOUNT REGISTRATION --}}
 
                 <div class="tab-pane fade show active"
-                     id="viewPersonal">
+                    id="viewAccount">
 
-                    ${section('Personal Information', 'Basic information of the applicant.')}
+                    ${section('Account Information', 'Account details and registration.')}
 
                     <div class="row">
 
                         ${field('Registration Number', r.registration_no)}
+                        ${field('Registration Status', r.status)}
+
+                    </div>
+
+                    <div class="row">
+
                         ${field('Family Name', r.family_name)}
                         ${field('First Name', r.first_name)}
                         ${field('Middle Name', r.middle_name)}
-                        ${field('Suffix', r.suffix)}
-                        ${field('Gender', r.gender)}
-                        ${field('Height (cm)', r.height)}
-                        ${field('Age', r.age)}
-                        ${field('Birth Date', r.birth_date)}
-                        ${field('Place of Birth', r.birth_place)}
-                        ${field('Marital Status', r.marital_status)}
-                        ${field('Citizenship', r.citizenship)}
-                        ${field('Religion', r.religion)}
 
                     </div>
 
-                </div>
-
-
-                {{-- ADDRESS AND CONTACT --}}
-
-                <div class="tab-pane fade"
-                     id="viewAddress">
-
-                    ${section('Residential Address', 'Registered residential address information.')}
-
-                    ${addresses.length ? addresses.map((address, index) => `
-
-                        <div class="border rounded p-3 mb-3">
-
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-
-                                <h6 class="fw-bold mb-0">
-                                    Address ${index + 1}
-                                </h6>
-
-                                ${address.is_primary ? `
-                                    <span class="badge bg-success">
-                                        Primary Address
-                                    </span>
-                                ` : ''}
-
-                            </div>
-
-                            <div class="row">
-
-                                ${field('Address Type', address.address_type)}
-                                ${field('House Number', address.house_no)}
-                                ${field('Street', address.street)}
-                                ${field('Barangay', address.barangay)}
-                                ${field('Municipality', address.municipality)}
-                                ${field('City', address.city)}
-                                ${field('Province', address.province)}
-                                ${field('Region', address.region)}
-                                ${field('ZIP Code', address.zip_code)}
-                                ${field('Additional Address', address.address_line)}
-
-                            </div>
-
-                        </div>
-
-                    `).join('') : `
-                        <div class="alert alert-light border text-center text-muted">
-                            No address records found.
-                        </div>
-                    `}
-
-                    <hr class="my-4">
-
-                    ${section('Contact Information')}
-
                     <div class="row">
-
-                        ${field('Mobile Number', r.mobile_no)}
-                        ${field('Landline', r.landline)}
-                        ${field('Email Address', r.email)}
-
-                    </div>
-
-                </div>
-
-
-                {{-- BACKGROUND --}}
-
-                <div class="tab-pane fade"
-                     id="viewBackground">
-
-                    ${section('Background Information', 'Identification and educational information.')}
-
-                    <div class="row">
-
-                        ${field('TIN Number', r.tin_no)}
-                        ${field('SSS / GSIS Number', r.sss_gsis_no)}
-                        ${field('Year Graduated', r.year_graduated)}
-                        ${field('Graduation Institution', r.graduation_school)}
-
-                    </div>
-
-                </div>
-
-
-                {{-- DEPENDENTS --}}
-
-                <div class="tab-pane fade"
-                     id="viewDependents">
-
-                    ${section('Dependents Information', 'List of registered dependents.')}
-
-                    ${table(
-                        ['No.', 'Full Name', 'Relationship', 'Birth Date', 'Remarks'],
-                        dependents.map((dependent, index) => [
-                            index + 1,
-                            dependent.full_name,
-                            dependent.relationship,
-                            dependent.date_of_birth,
-                            dependent.remarks
-                        ]),
-                        'No dependent records found.'
-                    )}
-
-                </div>
-
-
-                {{-- RECOMMENDER --}}
-
-                <div class="tab-pane fade"
-                     id="viewRecommender">
-
-                    ${section('Recommender Information', 'Regular CAAC member recommending the applicant.')}
-
-                    ${recommender ? `
-
-                        <div class="row">
-
-                            ${field('Last Name', recommender.last_name)}
-                            ${field('First Name', recommender.first_name)}
-                            ${field('Middle Name', recommender.middle_name)}
-                            ${field('Year Graduated From PMS', recommender.year_graduated)}
-
-                        </div>
-
-                    ` : `
-                        <div class="alert alert-light border text-center text-muted">
-                            No recommender information found.
-                        </div>
-                    `}
-
-                </div>
-
-
-                {{-- ACCOUNT REGISTRATION --}}
-
-                <div class="tab-pane fade"
-                     id="viewAccount">
-
-                    ${section('Account Information', 'Applicant account and registration details.')}
-
-                    <div class="row">
-
+                       
                         ${field('Username', user.username)}
                         ${field('Account Email', user.email)}
                         ${field('Account Status', user.account_status)}
-                        ${field('Registration Number', r.registration_no)}
-                        ${field('Registration Status', r.status)}
+
+                    </div>   
+
+                    <div class="row">
+                        
                         ${field('Submitted At', r.submitted_at)}
                         ${field('Reviewed At', r.reviewed_at)}
                         ${field('Reviewed By', r.reviewer)}
-                        ${field('Registration Email', r.email)}
-
+                        
                     </div>
 
                     ${section('Registration Remarks')}
 
                     <div class="form-control bg-light"
-                         style="min-height:80px; white-space:pre-wrap;">${displayValue(r.remarks)}</div>
+                        style="min-height:80px; white-space:pre-wrap;">${displayValue(r.remarks)}
+                    </div>
 
                     <hr class="my-4">
 
@@ -972,7 +855,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     )}
 
                 </div>
-
             </div>
 
         `;

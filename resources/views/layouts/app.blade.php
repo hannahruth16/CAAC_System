@@ -8,8 +8,11 @@
     <title>@yield('title', 'CAAC Dashboard')</title>
 
     @vite(['resources/js/app.js'])
+    @vite(['resources/css/app.css'])
 
     @stack('styles')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+
 </head>
 
 <body class="bg-light">
@@ -27,10 +30,20 @@
                 Dashboard
             </a>
 
-            <a class="nav-link text-white ms-3" 
-                href="{{ route('admin.users.index') }} ">
-                User Management
-            </a>
+            {{-- Administrator Only Menu (role_id = 6) --}}
+            @if (Auth::check() && Auth::user()->role_id == 6)
+
+                <a class="nav-link text-white ms-3"
+                href="{{ route('admin.users.index') }}">
+                    User Management
+                </a>
+
+                <a class="nav-link text-white ms-3"
+                href="{{ route('admin.users.registration-management') }}">
+                    Registration Management
+                </a>
+
+            @endif
 
             <div class="ms-auto d-flex align-items-center">
 
@@ -62,6 +75,8 @@
     </footer>
 
     @stack('scripts')
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>

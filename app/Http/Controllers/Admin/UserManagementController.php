@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Registration;
+use Illuminate\Support\Facades\Hash;
 
 class UserManagementController extends Controller
 {
@@ -67,124 +68,120 @@ class UserManagementController extends Controller
             'status'
         ));
     }
-
-
  
-/**
- * Retrieve registration information for the View Details modal.
- */
-public function registrationDetails($userId)
-{
-    $user = User::with([
-        'registration.addresses',
-        'registration.dependents',
-        'registration.recommender',
-        'registration.documents',
-        'registration.reviews',
-        'registration.reviewer',
-    ])->where('user_id', $userId)->firstOrFail();
+    /**
+     * Retrieve registration information for the View Details modal.
+     */
+    public function registrationDetails($userId)
+    {
+        $user = User::with([
+            'registration.addresses',
+            'registration.dependents',
+            'registration.recommender',
+            'registration.documents',
+            'registration.reviews',
+            'registration.reviewer',
+        ])->where('user_id', $userId)->firstOrFail();
 
-    if (!$user->registration) {
+        if (!$user->registration) {
+            return response()->json([
+                'message' => 'No registration record found for this user.'
+            ], 404);
+        }
+
+        $registration = $user->registration;
+
         return response()->json([
-            'message' => 'No registration record found for this user.'
-        ], 404);
+            'user' => [
+                'user_id' => $user->user_id,
+                'username' => $user->username,
+                'email' => $user->email,
+                'account_status' => $user->account_status,
+            ],
+
+            'registration' => [
+                'registration_id' => $registration->registration_id,
+                'registration_no' => $registration->registration_no,
+
+                // Personal Information
+                'family_name' => $registration->family_name,
+                'first_name' => $registration->first_name,
+                'middle_name' => $registration->middle_name,
+                'suffix' => $registration->suffix,
+                'full_name' => $registration->full_name,
+                'gender' => $registration->gender,
+                'height' => $registration->height,
+                'age' => $registration->age,
+                'birth_date' => $registration->birth_date?->format('F d, Y'),
+                'birth_place' => $registration->birth_place,
+                'marital_status' => $registration->marital_status,
+                'citizenship' => $registration->citizenship,
+                'religion' => $registration->religion,
+
+                // Contact Information
+                'mobile_no' => $registration->mobile_no,
+                'landline' => $registration->landline,
+                'email' => $registration->email,
+
+                // Background
+                'tin_no' => $registration->tin_no,
+                'sss_gsis_no' => $registration->sss_gsis_no,
+                'year_graduated' => $registration->year_graduated,
+                'graduation_school' => $registration->graduation_school,
+
+                // Registration status
+                'status' => $registration->status,
+                'submitted_at' => $registration->submitted_at?->format('F d, Y h:i A'),
+                'reviewed_at' => $registration->reviewed_at?->format('F d, Y h:i A'),
+                'remarks' => $registration->remarks,
+                'reviewer' => $registration->reviewer?->username,
+
+                // Address records
+                'addresses' => $registration->addresses->map(function ($address) {
+                    return [
+                        'address_type' => $address->address_type,
+                        'address_line' => $address->address_line,
+                        'house_no' => $address->house_no,
+                        'street' => $address->street,
+                        'barangay' => $address->barangay,
+                        'municipality' => $address->municipality,
+                        'city' => $address->city,
+                        'province' => $address->province,
+                        'region' => $address->region,
+                        'zip_code' => $address->zip_code,
+                        'is_primary' => $address->is_primary,
+                    ];
+                })->values(),
+
+                // Dependents
+                'dependents' => $registration->dependents->map(function ($dependent) {
+                    return [
+                        'full_name' => $dependent->full_name,
+                        'relationship' => $dependent->relationship,
+                        'date_of_birth' => $dependent->date_of_birth?->format('F d, Y'),
+                        'remarks' => $dependent->remarks,
+                    ];
+                })->values(),
+
+                // Recommender
+                'recommender' => $registration->recommender ? [
+                    'last_name' => $registration->recommender->last_name,
+                    'first_name' => $registration->recommender->first_name,
+                    'middle_name' => $registration->recommender->middle_name,
+                    'year_graduated' => $registration->recommender->year_graduated,
+                ] : null,
+
+                // Uploaded documents
+                'documents' => $registration->documents->map(function ($document) {
+                    return [
+                        'document_type' => $document->document_type ?? null,
+                        'document_name' => $document->document_name ?? null,
+                        'status' => $document->status ?? null,
+                    ];
+                })->values(),
+            ],
+        ]);
     }
-
-    $registration = $user->registration;
-
-    return response()->json([
-        'user' => [
-            'user_id' => $user->user_id,
-            'username' => $user->username,
-            'email' => $user->email,
-            'account_status' => $user->account_status,
-        ],
-
-        'registration' => [
-            'registration_id' => $registration->registration_id,
-            'registration_no' => $registration->registration_no,
-
-            // Personal Information
-            'family_name' => $registration->family_name,
-            'first_name' => $registration->first_name,
-            'middle_name' => $registration->middle_name,
-            'suffix' => $registration->suffix,
-            'full_name' => $registration->full_name,
-            'gender' => $registration->gender,
-            'height' => $registration->height,
-            'age' => $registration->age,
-            'birth_date' => $registration->birth_date?->format('F d, Y'),
-            'birth_place' => $registration->birth_place,
-            'marital_status' => $registration->marital_status,
-            'citizenship' => $registration->citizenship,
-            'religion' => $registration->religion,
-
-            // Contact Information
-            'mobile_no' => $registration->mobile_no,
-            'landline' => $registration->landline,
-            'email' => $registration->email,
-
-            // Background
-            'tin_no' => $registration->tin_no,
-            'sss_gsis_no' => $registration->sss_gsis_no,
-            'year_graduated' => $registration->year_graduated,
-            'graduation_school' => $registration->graduation_school,
-
-            // Registration status
-            'status' => $registration->status,
-            'submitted_at' => $registration->submitted_at?->format('F d, Y h:i A'),
-            'reviewed_at' => $registration->reviewed_at?->format('F d, Y h:i A'),
-            'remarks' => $registration->remarks,
-            'reviewer' => $registration->reviewer?->username,
-
-            // Address records
-            'addresses' => $registration->addresses->map(function ($address) {
-                return [
-                    'address_type' => $address->address_type,
-                    'address_line' => $address->address_line,
-                    'house_no' => $address->house_no,
-                    'street' => $address->street,
-                    'barangay' => $address->barangay,
-                    'municipality' => $address->municipality,
-                    'city' => $address->city,
-                    'province' => $address->province,
-                    'region' => $address->region,
-                    'zip_code' => $address->zip_code,
-                    'is_primary' => $address->is_primary,
-                ];
-            })->values(),
-
-            // Dependents
-            'dependents' => $registration->dependents->map(function ($dependent) {
-                return [
-                    'full_name' => $dependent->full_name,
-                    'relationship' => $dependent->relationship,
-                    'date_of_birth' => $dependent->date_of_birth?->format('F d, Y'),
-                    'remarks' => $dependent->remarks,
-                ];
-            })->values(),
-
-            // Recommender
-            'recommender' => $registration->recommender ? [
-                'last_name' => $registration->recommender->last_name,
-                'first_name' => $registration->recommender->first_name,
-                'middle_name' => $registration->recommender->middle_name,
-                'year_graduated' => $registration->recommender->year_graduated,
-            ] : null,
-
-            // Uploaded documents
-            'documents' => $registration->documents->map(function ($document) {
-                return [
-                    'document_type' => $document->document_type ?? null,
-                    'document_name' => $document->document_name ?? null,
-                    'status' => $document->status ?? null,
-                ];
-            })->values(),
-        ],
-    ]);
-}
-
-
 
     /**
      * Update account information.
@@ -194,11 +191,52 @@ public function registrationDetails($userId)
         $user = User::where('user_id', $userId)->firstOrFail();
 
         $validated = $request->validate([
-            'username' => 'required|string|max:255|unique:users,username,' . $userId . ',user_id',
-            'email' => 'required|email|max:255|unique:users,email,' . $userId . ',user_id',
+
+            'username' => [
+                'required',
+                'string',
+                'max:255',
+                'unique:users,username,' . $user->user_id . ',user_id',
+            ],
+
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+                'unique:users,email,' . $user->user_id . ',user_id',
+            ],
+
+            'account_status' => [
+                'required',
+                'in:active,deactivated',
+            ],
+
+            'password' => [
+                'nullable',
+                'string',
+                'min:8',
+                'confirmed',
+            ],
+
+            'password_confirmation' => [
+                'nullable',
+                'required_with:password',
+                'string',
+            ],
+
         ]);
 
-        $user->update($validated);
+        // Update account information.
+        $user->username = $validated['username'];
+        $user->email = $validated['email'];
+        $user->account_status = $validated['account_status'];
+
+        // Only update password if a new password was provided.
+        if (!empty($validated['password'])) {
+            $user->password = Hash::make($validated['password']);
+        }
+
+        $user->save();
 
         return redirect()
             ->route('admin.users.index', ['status' => 'active'])

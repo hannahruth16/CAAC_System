@@ -7,11 +7,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class RegistrationReview extends Model
 {
+    protected $table = 'registration_reviews';
     protected $primaryKey = 'review_id';
     public $timestamps = false;
 
     protected $fillable = [
-        'registration_id', 'reviewer_id', 'action', 'remarks', 'reviewed_at',
+        'registration_id',
+        'reviewer_id',
+        'action',
+        'remarks',
+        'reviewed_at',
     ];
 
     protected $casts = ['reviewed_at' => 'datetime'];
