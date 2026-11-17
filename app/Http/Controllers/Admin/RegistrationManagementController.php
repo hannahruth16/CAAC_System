@@ -291,4 +291,70 @@ class RegistrationManagementController extends Controller
         );
     }
 
+
+    /**
+     * Reject Registration with Remarks
+     */
+    public function rejectRegistration(Request $request, $registrationId)
+    {
+        // Validate rejection remarks
+        $validated = $request->validate([
+
+            'remarks' => [
+                'required',
+                'string',
+                'min:5',
+                'max:1000',
+            ],
+
+        ]);
+
+        DB::transaction(function () use ($registrationId, $validated) {
+
+            $registration = Registration::where(
+                'registration_id',
+                $registrationId
+            )->lockForUpdate()->firstOrFail();
+
+            // Validate registration status
+            $status = strtolower(trim($registration->status));
+
+            if (!in_array($status, ['submitted', 'resubmitted'])) {
+                abort(422, 'This registration cannot be rejected.');
+            }
+
+            // Update registration
+            $registration->status = 'rejected';
+            $registration->reviewed_by = Auth::id();
+            $registration->reviewed_at = now();
+            $registration->remarks = $validated['remarks'];
+
+            $registration->save();
+
+             // AUTOMATICALLY ACTIVATE USER ACCOUNT
+            $user = User::where(
+                'user_id',
+                $registration->user_id
+            )->lockForUpdate()->firstOrFail();
+
+            $user->account_status = 'rejected';
+            $user->save();
+
+            // Save review history
+            RegistrationReview::create([
+                'registration_id' => $registration->registration_id,
+                'reviewer_id' => Auth::id(),
+                'action' => 'rejected',
+                'remarks' => $validated['remarks'],
+                'reviewed_at' => now(),
+            ]);
+
+        });
+
+        return redirect()->back()->with(
+            'success',
+            'Registration successfully rejected.'
+        );
+    }
+
 }

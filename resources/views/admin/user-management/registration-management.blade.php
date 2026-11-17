@@ -350,6 +350,64 @@
 
                 </div>
 
+
+                <!-- REJECT REGISTRATION VIEW -->
+                <div id="rejectRegistrationPanel" style="display: none;">
+
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-octagon me-2"></i>
+                        Please provide the reason why this registration
+                        is being rejected.
+                    </div>
+
+                    <form method="POST"
+                        id="rejectRegistrationForm"
+                        action="">
+
+                        @csrf
+                        @method('PATCH')
+
+                        <div class="mb-3">
+
+                            <label for="reject_remarks" class="form-label fw-semibold">
+                                Rejection Remarks <span class="text-danger">*</span>
+                            </label>
+
+                            <textarea name="remarks"
+                                    id="reject_remarks"
+                                    class="form-control"
+                                    rows="5"
+                                    minlength="5"
+                                    maxlength="1000"
+                                    placeholder="Enter the reason for rejecting this registration..."
+                                    required></textarea>
+
+                            <small class="text-muted">
+                                Minimum of 5 characters. Maximum of 1,000 characters.
+                            </small>
+
+                        </div>
+
+                        <div class="modal-footer">
+
+                            <button type="button"
+                                    class="btn btn-secondary"
+                                    id="cancelRejectBtn">
+                                Cancel
+                            </button>
+
+                            <button type="submit"
+                                    class="btn btn-danger">
+                                <i class="bi bi-x-circle me-1"></i>
+                                Confirm Rejection
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
             </div>
 
             <div class="modal-footer" id="registrationModalFooter">
@@ -374,6 +432,13 @@
                     <i class="bi bi-check-circle me-1"></i>
                     Approve Registration
                 </button>
+
+                <button type="button"
+        class="btn btn-danger"
+        id="rejectRegistrationBtn">
+    <i class="bi bi-x-circle me-1"></i>
+    Reject
+</button>
 
             </div>
 
@@ -864,7 +929,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
  
-    // APPROVAL AND RETURN
+    // APPROVAL, RETURN, AND REJECTION BUTTONS
 
     const approveConfirmationPanel =
         document.getElementById('approveConfirmationPanel');
@@ -872,6 +937,8 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('returnRegistrationPanel');
     const registrationModalFooter =
         document.getElementById('registrationModalFooter');
+
+    //Approval 
     const cancelApproveBtn =
         document.getElementById('cancelApproveBtn');
     const cancelReturnBtn =
@@ -880,6 +947,8 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('confirmApproveBtn');
     const approveRegistrationBtn =
         document.getElementById('approveRegistrationBtn');
+
+    //Return
     const returnRegistrationBtn =
         document.getElementById('returnRegistrationBtn');
     const closeRegistrationBtn =
@@ -888,6 +957,18 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('returnRegistrationForm');
     const returnRemarks =
         document.getElementById('return_remarks');
+
+    //Rejection
+    const rejectRegistrationPanel =
+    document.getElementById('rejectRegistrationPanel');
+    const rejectRegistrationBtn =
+        document.getElementById('rejectRegistrationBtn');
+    const rejectRegistrationForm =
+        document.getElementById('rejectRegistrationForm');
+    const rejectRemarks =
+        document.getElementById('reject_remarks');
+    const cancelRejectBtn =
+        document.getElementById('cancelRejectBtn');
 
     // SHOW DETAILS VIEW
     function showRegistrationDetails() {
@@ -1031,12 +1112,72 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // CANCEL RETURN REGISTRATION
-
     if (cancelReturnBtn) {
 
         cancelReturnBtn.addEventListener('click', function () {
 
             returnRegistrationForm.reset();
+
+            showRegistrationDetails();
+
+        });
+
+    }
+
+    // REJECT REGISTRATION
+    if (
+        rejectRegistrationBtn &&
+        rejectRegistrationForm &&
+        rejectRegistrationPanel &&
+        rejectRemarks
+    ) {
+
+        rejectRegistrationBtn.addEventListener('click', function () {
+
+            const registrationId =
+                registrationModal.dataset.registrationId;
+
+            if (!registrationId) {
+                console.error('Registration ID not found.');
+                return;
+            }
+
+            // Set Laravel form action
+            rejectRegistrationForm.action =
+                "{{ route('admin.registrations.reject', ':id') }}"
+                    .replace(':id', registrationId);
+
+            // Clear previous remarks
+            rejectRemarks.value = '';
+
+            // Hide other views
+            registrationDetails.style.display = 'none';
+            returnRegistrationPanel.style.display = 'none';
+            approveConfirmationPanel.style.display = 'none';
+
+            // Display Reject Registration panel
+            rejectRegistrationPanel.style.display = 'block';
+
+            // Hide main footer
+            registrationModalFooter.style.display = 'none';
+
+            // Focus textarea
+            requestAnimationFrame(function () {
+                rejectRemarks.focus();
+            });
+
+        });
+
+    }
+
+
+    // CANCEL REJECT REGISTRATION
+
+    if (cancelRejectBtn) {
+
+        cancelRejectBtn.addEventListener('click', function () {
+
+            rejectRegistrationForm.reset();
 
             showRegistrationDetails();
 

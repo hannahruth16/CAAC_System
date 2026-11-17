@@ -146,7 +146,7 @@ class RegistrationController extends Controller
                 'email' => $validated['email'],
                 'year_graduated' => $validated['year_graduated'],
                 'graduation_school' => $validated['graduation_school'],
-                'status' => 'Submitted',
+                'status' => 'submitted',
                 'submitted_at' => now(),
             ]);
 

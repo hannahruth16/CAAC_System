@@ -57,6 +57,10 @@ Route::middleware(['auth'])
            [RegistrationManagementController::class, 'returnRegistration']
             )->name('registrations.return');
 
+        Route::patch('/registrations/{registrationId}/reject',
+            [RegistrationManagementController::class, 'rejectRegistration']
+            )->name('registrations.reject');
+
 });
 
 // Logout
