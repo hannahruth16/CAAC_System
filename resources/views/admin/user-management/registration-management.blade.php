@@ -147,9 +147,10 @@
 
                                     @php
                                         $badgeColors = [
-                                            'active' => 'bg-success',
+                                            'for board approval' => 'bg-success',
                                             'approved' => 'bg-success',
-                                            'pending' => 'bg-warning text-dark',
+                                            'submitted' => 'bg-warning text-dark',
+                                            'resubmitted' => 'bg-warning text-dark',
                                             'returned' => 'bg-info text-dark',
                                             'rejected' => 'bg-danger',
                                         ];
@@ -311,7 +312,6 @@
 
                 </div>
 
-
                 <!-- APPROVAL CONFIRMATION VIEW -->
                 <div id="approveConfirmationPanel" style="display: none;">
 
@@ -328,6 +328,27 @@
                             Are you sure you want to approve this registration?
                             This action will also activate the user's account.
                         </p>
+
+                    </div>
+
+                    <!-- OPTIONAL APPROVAL REMARKS -->
+                    <div class="mb-4">
+
+                        <label for="approvalRemarks" class="form-label fw-semibold">
+                            Remarks <span class="text-muted fw-normal">(Optional)</span>
+                        </label>
+
+                        <textarea
+                            class="form-control"
+                            id="approvalRemarks"
+                            name="remarks"
+                            rows="3"
+                            maxlength="1000"
+                            placeholder="Enter remarks (optional)..."></textarea>
+
+                        <small class="text-muted">
+                            Maximum of 1000 characters.
+                        </small>
 
                     </div>
 
@@ -349,7 +370,6 @@
                     </div>
 
                 </div>
-
 
                 <!-- REJECT REGISTRATION VIEW -->
                 <div id="rejectRegistrationPanel" style="display: none;">
@@ -679,12 +699,6 @@ document.addEventListener('DOMContentLoaded', function () {
                                     Address ${index + 1}
                                 </h6>
 
-                                ${address.is_primary ? `
-                                    <span class="badge bg-success">
-                                        Primary Address
-                                    </span>
-                                ` : ''}
-
                             </div>
 
                             <div class="row">
@@ -857,10 +871,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             registrationDetails.innerHTML = `
                 <div class="text-center py-5">
-                    <div class="spinner-border text-primary"
-                        role="status">
-                    </div>
-
+                    <div class="spinner-border text-primary" role="status"></div>
                     <p class="text-muted mt-3">
                         Loading registration information...
                     </p>
@@ -895,18 +906,42 @@ document.addEventListener('DOMContentLoaded', function () {
                 );
 
                 // BUTTON VISIBILITY
-                const status = (data.registration?.status || '').toLowerCase();
+                const status = (
+                    data.registration?.status || ''
+                ).trim().toLowerCase();
 
-                const canReview = ['submitted', 'resubmitted'].includes(status);
+                registrationModal.dataset.registrationStatus = status;
 
-                approveRegistrationBtn.style.display =
-                    canReview ? 'inline-block' : 'none';
+                const roleId = {{ Auth::user()->role_id }};
 
-                returnRegistrationBtn.style.display =
-                    canReview ? 'inline-block' : 'none';
+                if (roleId == 4) {
 
-                console.log('Registration Status:', status);
-                console.log('Can Review:', canReview);
+                    // BOARD APPROVER
+                    const canBoardApprove = status === 'for board approval';
+
+                    approveRegistrationBtn.style.display =
+                        canBoardApprove ? 'inline-block' : 'none';
+
+                    rejectRegistrationBtn.style.display =
+                        canBoardApprove ? 'inline-block' : 'none';
+
+                    // Board Approver cannot return registrations
+                    returnRegistrationBtn.style.display = 'none';
+
+                } else {
+
+                    // INITIAL APPROVER
+                    const canReview = ['submitted', 'resubmitted'].includes(status);
+
+                    approveRegistrationBtn.style.display =
+                        canReview ? 'inline-block' : 'none';
+
+                    rejectRegistrationBtn.style.display =
+                        canReview ? 'inline-block' : 'none';
+
+                    returnRegistrationBtn.style.display =
+                        canReview ? 'inline-block' : 'none';
+                }
 
                 // RENDER DETAILS
                 renderRegistration(data);
@@ -926,11 +961,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         });
 
-
     }
- 
+    
     // APPROVAL, RETURN, AND REJECTION BUTTONS
-
     const approveConfirmationPanel =
         document.getElementById('approveConfirmationPanel');
     const returnRegistrationPanel =
@@ -1023,6 +1056,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+    
     // CONFIRM APPROVAL
     if (confirmApproveBtn) {
 
@@ -1036,6 +1070,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
+            // Get optional remarks
+            const remarks =
+                document.getElementById('approvalRemarks').value.trim();
+
             const form = document.createElement('form');
 
             form.method = 'POST';
@@ -1044,18 +1082,27 @@ document.addEventListener('DOMContentLoaded', function () {
                 "{{ route('admin.registrations.approve', ':id') }}"
                     .replace(':id', registrationId);
 
+            // CSRF TOKEN
             const csrf = document.createElement('input');
             csrf.type = 'hidden';
             csrf.name = '_token';
             csrf.value = "{{ csrf_token() }}";
 
+            // PATCH METHOD
             const method = document.createElement('input');
             method.type = 'hidden';
             method.name = '_method';
             method.value = 'PATCH';
 
+            // OPTIONAL REMARKS
+            const remarksInput = document.createElement('input');
+            remarksInput.type = 'hidden';
+            remarksInput.name = 'remarks';
+            remarksInput.value = remarks;
+
             form.appendChild(csrf);
             form.appendChild(method);
+            form.appendChild(remarksInput);
 
             document.body.appendChild(form);
 
@@ -1064,6 +1111,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
     }
+
 
     // RETURN REGISTRATION
 

@@ -31,7 +31,7 @@
             </a>
 
             {{-- Administrator Only Menu (role_id = 6) --}}
-            @if (Auth::check() && Auth::user()->role_id == 6)
+            @if (Auth::check() && in_array(Auth::user()->role_id, [6, 4, 3]))
 
                 <a class="nav-link text-white ms-3"
                 href="{{ route('admin.users.index') }}">

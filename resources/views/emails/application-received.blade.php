@@ -21,22 +21,29 @@
             <strong>Cavaliers Agarwood Agriculture Cooperative (CAAC)</strong>.
             We have successfully logged your submission under the following
             reference number: 
-            <span style="color: #245c32; font-size: 18px;">
+            <strong style="color: #245c32; font-size: 18px;">
                 {{ $registration->registration_no }}
-            </span>
+            </strong>
         </p>
 
-        <h3>Application Summary</h3>
+        <div style="
+            background-color: #f7fff9;
+            border-left: 4px solid #245c32;
+            padding: 15px;
+            margin: 20px 0;
+        ">
+            <strong><h3>Application Summary</h3></strong><br>
 
-        <p>
-            <strong>Applicant Name:</strong>
-            {{ ucfirst($applicantName) }}
-        </p>
+            <p>
+                <strong>Applicant Name:</strong>
+                {{ ucfirst($applicantName) }}
+            </p>
 
-        <p>
-            <strong>Recommending Regular Member:</strong>
-            {{ $recommenderName }}
-        </p>
+            <p>
+                <strong>Recommending Regular Member:</strong>
+                {{ $recommenderName }}
+            </p>
+        </div>
 
         <h3>What Happens Next?</h3>
 

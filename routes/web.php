@@ -60,8 +60,22 @@ Route::middleware(['auth'])
         Route::patch('/registrations/{registrationId}/reject',
             [RegistrationManagementController::class, 'rejectRegistration']
             )->name('registrations.reject');
-
 });
+
+//Returned Application Resubmission Routes
+Route::get('/registration/{registrationId}/resubmit',
+    [RegistrationController::class, 'showResubmit']
+)->middleware('signed')
+->name('registration.resubmit.form');
+
+Route::put('/registration/{registrationId}/resubmit',
+    [RegistrationController::class, 'resubmit']
+)->middleware('signed')
+->name('registration.resubmit');
+
+Route::get('/registration/resubmission-success', function () {
+    return view('resubmission-success');
+})->name('registration.resubmit.success');
 
 // Logout
 Route::post('/logout', [LoginController::class, 'logout'])
