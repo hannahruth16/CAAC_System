@@ -914,34 +914,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 const roleId = {{ Auth::user()->role_id }};
 
-                if (roleId == 4) {
+                // BOARD APPROVER (Role 4 and 6)
+                const canBoardApprove =
+                    [4, 6].includes(Number(roleId)) &&
+                    status === 'for board approval';
 
-                    // BOARD APPROVER
-                    const canBoardApprove = status === 'for board approval';
+                // INITIAL APPROVER (Role 3 and 6)
+                const canReview =
+                    [3, 6].includes(Number(roleId)) &&
+                    ['submitted', 'resubmitted'].includes(status);
 
-                    approveRegistrationBtn.style.display =
-                        canBoardApprove ? 'inline-block' : 'none';
+                // APPROVE BUTTON
+                approveRegistrationBtn.style.display =
+                    (canBoardApprove || canReview) ? 'inline-block' : 'none';
 
-                    rejectRegistrationBtn.style.display =
-                        canBoardApprove ? 'inline-block' : 'none';
+                // REJECT BUTTON
+                rejectRegistrationBtn.style.display =
+                    (canBoardApprove || canReview) ? 'inline-block' : 'none';
 
-                    // Board Approver cannot return registrations
-                    returnRegistrationBtn.style.display = 'none';
-
-                } else {
-
-                    // INITIAL APPROVER
-                    const canReview = ['submitted', 'resubmitted'].includes(status);
-
-                    approveRegistrationBtn.style.display =
-                        canReview ? 'inline-block' : 'none';
-
-                    rejectRegistrationBtn.style.display =
-                        canReview ? 'inline-block' : 'none';
-
-                    returnRegistrationBtn.style.display =
-                        canReview ? 'inline-block' : 'none';
-                }
+                // RETURN BUTTON
+                returnRegistrationBtn.style.display =
+                    canReview ? 'inline-block' : 'none';
 
                 // RENDER DETAILS
                 renderRegistration(data);

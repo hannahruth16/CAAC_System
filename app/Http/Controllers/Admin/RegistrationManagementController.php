@@ -23,21 +23,12 @@ class RegistrationManagementController extends Controller
      */
     public function index(Request $request)
     {
-        $roleId = Auth::user()->role_id;
-
-        // Available registration statuses based on role
-        if ($roleId == 4) {
-            $statuses = [
-                'Approved',
-                'For Board Approval',
-            ];
-        } else {
-            $statuses = Registration::whereNotNull('status')
-                ->distinct()
-                ->orderBy('status')
-                ->pluck('status')
-                ->toArray();
-        }
+        // Retrieve all available registration statuses
+        $statuses = Registration::whereNotNull('status')
+            ->distinct()
+            ->orderBy('status')
+            ->pluck('status')
+            ->toArray();
 
         // Default status tab
         $status = $request->query('status', $statuses[0] ?? null);
@@ -49,14 +40,6 @@ class RegistrationManagementController extends Controller
 
         // Initialize Registration query
         $query = Registration::query();
-
-        // IMPORTANT: Restrict role_id 4
-        if ($roleId == 4) {
-            $query->whereIn('status', [
-                'Approved',
-                'For Board Approval',
-            ]);
-        }
 
         // Filter by selected registration status
         if ($status !== null) {
@@ -93,8 +76,8 @@ class RegistrationManagementController extends Controller
     }
 
     /**
-     * Retrieve registration information for the View Details modal.
-     */
+    * Retrieve registration information for the View Details modal.
+    */
     public function registrationDetails($userId)
     {
         $user = User::with([
@@ -113,22 +96,6 @@ class RegistrationManagementController extends Controller
         }
 
         $registration = $user->registration;
-
-        // Restrict Board Approver to Approved and For Board Approval
-        if (Auth::user()->role_id == 4) {
-
-            $allowedStatuses = [
-                'approved',
-                'for board approval',
-            ];
-
-            if (!in_array(
-                strtolower(trim($registration->status)),
-                $allowedStatuses
-            )) {
-                abort(403, 'This registration is not available.');
-            }
-        }
 
         return response()->json([
             'user' => [
@@ -244,14 +211,14 @@ class RegistrationManagementController extends Controller
             $status = strtolower(trim($registration->status));
 
             // Role 3: Initial Approver
-            if ($roleId == 3) {
+            if (in_array($roleId, [3, 6])) {
 
                 if (!in_array($status, ['submitted', 'returned', 'resubmitted'])) {
                     abort(422, 'This registration cannot be reviewed.');
                 }
 
             // Role 4: Board Approver
-            } elseif ($roleId == 4) {
+            } elseif (in_array($roleId, [4, 6])) {
 
                 if ($status !== 'for board approval') {
                     abort(422, 'This registration is not available for Board Approval.');
@@ -267,9 +234,9 @@ class RegistrationManagementController extends Controller
 
             // Update registration status
             // Update registration status based on approver's role_id
-            if (Auth::user()->role_id == 3) {
+            if (in_array(Auth::user()->role_id, [3, 6])) {
                 $registration->status = 'For Board Approval';
-            } elseif (Auth::user()->role_id == 4) {
+            } elseif (in_array(Auth::user()->role_id, [4, 6])) {
                 $registration->status = 'Approved';
             }
 
