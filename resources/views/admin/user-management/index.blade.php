@@ -9,7 +9,7 @@
 
     {{-- Header --}}
     <div class="mb-4">
-        <h2 class="fw-bold text-primary">
+        <h2 class="heading">
             User Management
         </h2>
 
@@ -98,7 +98,7 @@
 
                 <div class="table-responsive">
 
-                    <table class="table table-hover align-middle">
+                    <table class="table table-hover align-middle registration-table">
 
                         <thead class="table-light">
 

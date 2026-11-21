@@ -8,6 +8,13 @@
 
     @vite(['resources/js/app.js'])
     <style>
+
+        .header {
+            color: #00441b;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
         .registration-tabs {
             display: flex;
             flex-   wrap: wrap;
@@ -17,8 +24,8 @@
 
         .registration-tabs .nav-link {
             display: block;
-            color: #6c757d;
-            background: #f8f9fa;
+            color: #00441b;
+            background: #e5f5e0;
             border: 1px solid #dee2e6;
             border-radius: .375rem .375rem 0 0;
             cursor: default;
@@ -27,17 +34,63 @@
         }
 
         .registration-tabs .nav-link.active {
-            color: #0d6efd;
-            background: #fff;
+            color: #fffff;
+            background: #00441b;
             border-color: #0d6efd #0d6efd #fff;
             font-weight: 600;
         }
 
         .registration-tabs .nav-link.completed {
-            color: #198754;
-            background: #f0fff6;
+            color: #ffffff;
+            background: #00441b;
             border-color: #b7dfc8;
         }
+
+        /*SAVE & CONTINUE BUTTON*/
+        #nextBtn {
+            background-color: #00441b !important;
+            border-color: #00441b !important;
+            color: #ffffff !important;
+            font-weight: 600;
+            transition: all 0.2s ease-in-out;
+        }
+
+        #nextBtn:hover {
+            background-color: #013215 !important;
+            border-color: #f7fcf5 !important;
+            color: #f7fcf5 !important;
+        }
+
+        /*SUBMIT REGISTRATION BUTTON*/
+        #submitBtn {
+            background-color: #00441b !important;
+            border-color: #00441b !important;
+            color: #ffffff !important;
+            font-weight: 600;
+            transition: all 0.2s ease-in-out;
+        }
+
+        #submitBtn:hover {
+            background-color: #013215 !important;
+            border-color: #f7fcf5 !important;
+            color: #f7fcf5 !important;
+        }
+
+        /*BUTTON FOCUS EFFECT*/
+        #nextBtn:focus,
+        #submitBtn:focus {
+            box-shadow: 0 0 0 0.2rem rgba(30, 58, 95, 0.2) !important;
+        }
+
+        /*BUTTON ACTIVE EFFECT*/
+        #nextBtn:active {
+            background-color: #12263d !important;
+        }
+
+        #submitBtn:active {
+            background-color: #0f5132 !important;
+        }
+
     </style>
 
 </head>
@@ -51,7 +104,7 @@
 
                 <!-- Page Header -->
                 <div class="mb-4">
-                    <h3 class="fw-bold text-primary">Applicant Registration</h3>
+                    <h3 class="fw-bold header">Applicant Registration</h3>
                     <p class="text-muted">
                         Enter your legal and personal details as shown on your identification documents.
                     </p>

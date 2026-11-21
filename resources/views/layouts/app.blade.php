@@ -14,172 +14,6 @@
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 
-    <style>
-        body {
-            overflow-x: hidden;
-        }
-
-        /* TOP NAVBAR */
-        .top-navbar {
-            height: 65px;
-            background: #0d6efd;
-            color: white;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1040;
-            display: flex;
-            align-items: center;
-            padding: 0 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,.1);
-        }
-
-        .sidebar-toggle {
-            border: none;
-            background: transparent;
-            color: white;
-            font-size: 24px;
-            margin-right: 15px;
-        }
-
-        /* SIDEBAR */
-        .sidebar {
-            position: fixed;
-            top: 65px;
-            left: 0;
-            bottom: 0;
-            width: 250px;
-            background: #fff;
-            border-right: 1px solid #dee2e6;
-            transition: width .3s ease, transform .3s ease;
-            z-index: 1030;
-            overflow-y: auto;
-        }
-
-        .sidebar-menu {
-            padding: 20px 12px;
-        }
-
-        .sidebar .menu-label {
-            font-size: 14px;
-            font-weight: 700;
-            color: #8a94a6;
-            text-transform: uppercase;
-            padding: 10px 12px;
-        }
-
-        .sidebar .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 13px;
-            padding: 12px 14px;
-            color: #495057;
-            border-radius: 7px;
-            margin-bottom: 5px;
-            white-space: nowrap;
-            transition: .2s;
-        }
-
-        .sidebar .nav-link i {
-            font-size: 19px;
-            min-width: 22px;
-            text-align: center;
-        }
-        
-        .sidebar .nav-link span{
-            font-size: 14px;
-            
-        }
-
-        .sidebar .nav-link:hover {
-            background: #eaf2ff;
-            color: #0d6efd;
-        }
-
-        .sidebar .nav-link.active {
-            background: #0d6efd;
-            color: white;
-            font-weight: 600;
-        }
-
-        /* MAIN CONTENT */
-        .main-content {
-            margin-left: 250px;
-            margin-top: 65px;
-            padding: 25px;
-            min-height: calc(100vh - 65px);
-            transition: margin-left .3s ease;
-        }
-
-        /* COLLAPSED SIDEBAR */
-        body.sidebar-collapsed .sidebar {
-            width: 75px;
-        }
-
-        body.sidebar-collapsed .sidebar .nav-link {
-            justify-content: center;
-            padding: 12px 10px;
-        }
-
-        body.sidebar-collapsed .sidebar .nav-link span,
-        body.sidebar-collapsed .sidebar .menu-label {
-            display: none;
-        }
-
-        body.sidebar-collapsed .main-content {
-            margin-left: 75px;
-        }
-
-        /* MOBILE */
-        .sidebar-overlay {
-            display: none;
-        }
-
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 250px;
-                transform: translateX(-100%);
-            }
-
-            body.mobile-sidebar-open .sidebar {
-                transform: translateX(0);
-            }
-
-            .main-content,
-            body.sidebar-collapsed .main-content {
-                margin-left: 0;
-                padding: 18px;
-            }
-
-            body.sidebar-collapsed .sidebar {
-                width: 250px;
-            }
-
-            body.sidebar-collapsed .sidebar .nav-link {
-                justify-content: flex-start;
-                padding: 12px 14px;
-            }
-
-            body.sidebar-collapsed .sidebar .nav-link span,
-            body.sidebar-collapsed .sidebar .menu-label {
-                display: initial;
-            }
-
-            body.mobile-sidebar-open .sidebar-overlay {
-                display: block;
-                position: fixed;
-                inset: 65px 0 0;
-                background: rgba(0,0,0,.4);
-                z-index: 1020;
-            }
-
-            .user-welcome {
-                display: none;
-            }
-        }
-    </style>
-
     @stack('styles')
 </head>
 
@@ -239,7 +73,7 @@
             </a>
 
             {{-- Administrator Menus --}}
-            @if (Auth::check() && in_array(Auth::user()->role_id, [6, 4, 3]))
+            <!-- @if (Auth::check() && in_array(Auth::user()->role_id, [6, 4, 3])) -->
 
                 <div class="menu-label mt-3">
                     Administration
@@ -265,7 +99,7 @@
 
                 </a>
 
-            @endif
+            <!-- @endif -->
 
         </div>
 

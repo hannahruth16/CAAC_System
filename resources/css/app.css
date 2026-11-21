@@ -4,6 +4,392 @@
 @source '../../storage/framework/views/*.php';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
+        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+        'Noto Color Emoji';
+}
+
+body {
+    overflow-x: hidden;
+}
+
+/* =========================================
+   TOP NAVBAR
+========================================= */
+
+.top-navbar {
+    height: 65px;
+    background: #00441b;
+    color: white;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1040;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, .1);
+}
+
+.sidebar-toggle {
+    border: none;
+    background: transparent;
+    color: white;
+    font-size: 24px;
+    margin-right: 15px;
+}
+
+/* =========================================
+   SIDEBAR
+========================================= */
+
+.sidebar {
+    position: fixed;
+    top: 65px;
+    left: 0;
+    bottom: 0;
+    width: 250px;
+    background: #00441b;
+    border-right: 1px solid #dee2e6;
+    transition: width .3s ease, transform .3s ease;
+    z-index: 1030;
+    overflow-y: auto;
+}
+
+.sidebar-menu {
+    padding: 20px 12px;
+}
+
+.sidebar .menu-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: #ffffff;
+    text-transform: uppercase;
+    padding: 10px 12px;
+}
+
+.sidebar .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 12px 14px;
+    color: #00441b;
+    border-radius: 7px;
+    margin-bottom: 5px;
+    white-space: nowrap;
+    transition: .2s;
+    background: #e5f5e0;
+    font-weight: 500;
+}
+
+.sidebar .nav-link i {
+    font-size: 19px;
+    min-width: 22px;
+    text-align: center;
+}
+
+.sidebar .nav-link span {
+    font-size: 14px;
+}
+
+.sidebar .nav-link:hover {
+    background: #f7fcf5;
+    color: #00441b;
+}
+
+.sidebar .nav-link.active {
+    background: #013215;
+    color: #f7fcf5;
+    font-weight: 600;
+}
+
+/* =========================================
+   MAIN CONTENT
+========================================= */
+
+.main-content {
+    margin-left: 250px;
+    margin-top: 35px;
+    padding: 25px;
+    min-height: calc(100vh - 65px);
+    transition: margin-left .3s ease;
+}
+
+/* =========================================
+   COLLAPSED SIDEBAR
+========================================= */
+
+body.sidebar-collapsed .sidebar {
+    width: 75px;
+}
+
+body.sidebar-collapsed .sidebar .nav-link {
+    justify-content: center;
+    padding: 12px 10px;
+}
+
+body.sidebar-collapsed .sidebar .nav-link span,
+body.sidebar-collapsed .sidebar .menu-label {
+    display: none;
+}
+
+body.sidebar-collapsed .main-content {
+    margin-left: 75px;
+}
+
+/* =========================================
+   TABS - APPLIED TO ALL
+========================================= */
+
+/* Inactive Tabs */
+.nav-tabs .nav-link {
+    color: #00441b !important;
+    background-color: #e5f5e0;
+    margin: .5px;
+    font-weight: 600;
+}
+
+/* Active Tab */
+.nav-tabs .nav-link.active {
+    color: #ffffff !important;
+    background-color: #00441b !important;
+}
+
+/* Hover */
+.nav-tabs .nav-link:hover:not(.active) {
+    color: #00441b !important;
+    background-color: #f7fcf5;
+}
+
+/* =========================================
+   REGISTRATION - APPLIED TO ALL
+========================================= */
+
+.heading {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #00441b;
+}
+
+.registration-table {
+    font-size: 13px;
+}
+
+.registration-table th {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.registration-table td {
+    font-size: 14px;
+}
+
+/* =========================================
+   TABLES - APPLIED TO ALL
+========================================= */
+
+.table {
+    font-size: 14px;
+    vertical-align: middle;
+}
+
+.table thead th {
+    background-color: #f7fcf5;
+    color: #00441b !important;
+    font-weight: 700;
+    border: none;
+}
+
+/* =========================================
+   BUTTONS
+========================================= */
+
+.btn-primary {
+    background-color: #00441b !important;
+    color: #ffffff !important;
+    border: none !important;
+}
+
+.btn-primary:hover {
+    background-color: #015221 !important;
+    color: #ffffff !important;
+}
+
+.btn-outline-primary {
+    color: #00441b !important;
+    border-color: #00441b !important;
+    background-color: transparent;
+}
+
+/* Hover Effect */
+.btn-outline-primary:hover {
+    color: #00441b !important;
+    background-color: #f7fcf5 !important;
+    border-color: #00441b !important;
+}
+
+/* =========================================
+   SECTION HEADING
+========================================= */
+
+h5.text-primary {
+    color: #00441b !important;
+}
+
+/* =========================================
+   NUMBER BADGE
+========================================= */
+
+.badge.bg-primary {
+    background-color: #00441b !important;
+    color: #ffffff !important;
+}
+
+/* =========================================
+   REGISTRATION HEADING CARD
+========================================= */
+
+.card.border-0.shadow-sm.heading-card {
+    background-color: #f7fcf5;
+    border-radius: 15px;
+}
+
+/* Applicant Name */
+.card h4.fw-bold {
+    color: #00441b !important;
+    font-weight: 700;
+}
+
+/* Registration Number and Email */
+.card .text-muted {
+    color: #00441b !important;
+}
+
+/* Icons */
+.card .bi-person-badge,
+.card .bi-envelope {
+    color: #00441b;
+}
+
+/* Important Information */
+.card p strong {
+    color: #00441b;
+}
+
+.card .badge {
+    font-weight: 600;
+    border-radius: 15px;
+    letter-spacing: 0.3px;
+}
+
+/* =========================================
+   CARD HEADERS
+========================================= */
+
+.card-header.bg-white {
+    background-color: #f7fcf5 !important;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+/* Card Titles */
+.card-header h5 {
+    color: #00441b !important;
+    font-weight: 700;
+}
+
+/* Card Header Icons */
+.card-header h5 i {
+    color: #00441b !important;
+}
+
+/* =========================================
+   REGISTRATION ACTION BUTTONS
+========================================= */
+
+/* Approve */
+.card-body .btn-success {
+    background-color: #198754 !important;
+    border-color: #198754 !important;
+    color: #ffffff !important;
+}
+
+.card-body .btn-success:hover {
+    background-color: #146c43 !important;
+    border-color: #146c43 !important;
+}
+
+/* Return */
+.card-body .btn-warning {
+    background-color: #f0ad4e !important;
+    border-color: #f0ad4e !important;
+    color: #212529 !important;
+}
+
+.card-body .btn-warning:hover {
+    background-color: #e09b35 !important;
+    border-color: #e09b35 !important;
+}
+
+/* Reject */
+.card-body .btn-danger {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: #ffffff !important;
+}
+
+.card-body .btn-danger:hover {
+    background-color: #bb2d3b !important;
+    border-color: #bb2d3b !important;
+}
+
+/* =========================================
+   MOBILE RESPONSIVENESS
+========================================= */
+
+.sidebar-overlay {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 250px;
+        transform: translateX(-100%);
+    }
+
+    body.mobile-sidebar-open .sidebar {
+        transform: translateX(0);
+    }
+
+    .main-content,
+    body.sidebar-collapsed .main-content {
+        margin-left: 0;
+        padding: 18px;
+    }
+
+    body.sidebar-collapsed .sidebar {
+        width: 250px;
+    }
+
+    body.sidebar-collapsed .sidebar .nav-link {
+        justify-content: flex-start;
+        padding: 12px 14px;
+    }
+
+    body.sidebar-collapsed .sidebar .nav-link span,
+    body.sidebar-collapsed .sidebar .menu-label {
+        display: initial;
+    }
+
+    body.mobile-sidebar-open .sidebar-overlay {
+        display: block;
+        position: fixed;
+        inset: 65px 0 0;
+        background: rgba(0, 0, 0, .4);
+        z-index: 1020;
+    }
+
+    .user-welcome {
+        display: none;
+    }
 }
